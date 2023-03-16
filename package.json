@@ -1,0 +1,16 @@
+{
+  "name": "starter_github_app",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "server": "node app.js"
+  },
+  "devDependencies": {
+    "vite": "^4.1.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "octokit": "^2.0.14"
+  }
+}
