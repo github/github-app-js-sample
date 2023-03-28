@@ -24,7 +24,7 @@ Example of an integration via GitHub App using [octokit.js](https://github.com/o
 ## Usage
 
 With your server running, you can now create a pull request on any repository that
-your app can access. GitHub will emit a `pull_request.opened` and will deliver
+your app can access. GitHub will emit a `pull_request.opened` event and will deliver
 the corresponding Webhook [payload](https://docs.github.com/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request) to your server.
 
 The server in this example listens for `pull_request.opened` events and acts on
