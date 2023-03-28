@@ -18,7 +18,7 @@ Example of an integration via GitHub App using [octokit.js](https://github.com/o
 3. Install dependencies with `npm install`.
 4. Start the server with `npm run server`.
 5. Ensure your server is reachable from the internet.
-    - If you're using `smee`, run `smee -u <smee_url> -t http://patman.localhost:3000/api/hook`.
+    - If you're using `smee`, run `smee -u <smee_url> -t http://localhost:3000/api/webhook`.
 6. Ensure your GitHub App includes at least one repository on its installations.
 
 ## Usage
