@@ -14,7 +14,7 @@ This sample app showcases how webhooks can be used with a GitHub App's installat
 ## Setup
 
 1. Clone this repository.
-2. Create a `.env` file similar to `.env.example` and set actual values.
+2. Create a `.env` file similar to `.env.example` and set actual values. If you are using GitHub Enterprise Server, also include a `ENTERPRISE_HOSTNAME` variable and set the value to the name of your GitHub Enterprise Server instance.
 3. Install dependencies with `npm install`.
 4. Start the server with `npm run server`.
 5. Ensure your server is reachable from the internet.
