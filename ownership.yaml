@@ -8,12 +8,6 @@ ownership:
     exec_sponsor: scottdensmore
     product_manager: hpsin
     repo: https://github.com/github/github-app-js-sample
-    sev1:
-      issue: https://github.com/github/github-app-js-sample/issues
-      tta: '1 business day'
-    sev2:
-      issue: https://github.com/github/github-app-js-sample/issues
-      tta: '5 business days'
     sev3:
       issue: https://github.com/github/github-app-js-sample/issues
       slack: ce-apps
