@@ -5,7 +5,7 @@ ownership:
     description: Sample of a GitHub App that comments new pull requests
     kind: code
     team: github/ecosystem-apps
-    exec_sponsor: scottdensmore
+    exec_sponsor: brumfb
     product_manager: hpsin
     repo: https://github.com/github/github-app-js-sample
     sev3:
