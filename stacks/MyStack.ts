@@ -9,6 +9,10 @@ export function API({ stack }: StackContext) {
   })
 
   const api = new Api(stack, "api", {
+    customDomain: {
+      domainName: process.env.DOMAIN_NAME,
+      hostedZone: process.env.HOSTED_ZONE,
+    },
     routes: {
       "POST /": handlerFunc,
     },
