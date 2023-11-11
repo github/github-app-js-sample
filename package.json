@@ -5,15 +5,30 @@
   "type": "module",
   "scripts": {
     "server": "node app.js",
-    "lint": "standard"
+    "lint": "standard",
+    "dev": "sst dev",
+    "build": "sst build",
+    "deploy": "sst deploy",
+    "remove": "sst remove",
+    "console": "sst console",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "smee-client": "^1.2.3",
     "standard": "^17.0.0",
-    "vite": "^4.1.5"
+    "vite": "^4.1.5",
+    "sst": "^2.36.1",
+    "aws-cdk-lib": "2.95.1",
+    "constructs": "10.2.69",
+    "typescript": "^5.2.2",
+    "@tsconfig/node18": "^18.2.2"
   },
   "dependencies": {
+    "@vendia/serverless-express": "^4.10.4",
     "dotenv": "^16.0.3",
     "octokit": "^2.0.14"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }
