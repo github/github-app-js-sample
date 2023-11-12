@@ -11,8 +11,6 @@ dotenv.config()
 
 // Set configured values
 const appId = process.env.APP_ID
-// const privateKeyPath = process.env.PRIVATE_KEY_PATH
-// const privateKey = fs.readFileSync(privateKeyPath, 'utf8')
 const privateKey = Buffer.from(Config.GITHUB_PRIVATE_KEY, 'utf-8')
 const secret = process.env.WEBHOOK_SECRET
 const enterpriseHostname = process.env.ENTERPRISE_HOSTNAME
@@ -73,11 +71,9 @@ const path = '/api/webhook'
 // const localWebhookUrl = `http://localhost:${port}${path}`
 
 // See https://github.com/octokit/webhooks.js/#createnodemiddleware for all options
-const middleware = createNodeMiddleware(app.webhooks, { path })
+export const middleware = createNodeMiddleware(app.webhooks, { path })
 
 // http.createServer(middleware).listen(port, () => {
 //   console.log(`Server is listening for events at: ${localWebhookUrl}`)
 //   console.log('Press Ctrl + C to quit.')
 // })
-
-module.exports = middleware
