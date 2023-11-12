@@ -3,7 +3,7 @@ import { Context, APIGatewayEvent } from 'aws-lambda';
 
 import * as dotenv from "dotenv";
 
-// const crypto = require("crypto")
+const crypto = require("crypto")
 import { Octokit, App } from 'octokit'
 import { createNodeMiddleware } from '@octokit/webhooks'
 import { Config } from "sst/node/config";
@@ -27,7 +27,7 @@ const secret = Config.WEBHOOK_SECRET
 const enterpriseHostname = process.env.ENTERPRISE_HOSTNAME
 const messageForNewPRs = Buffer.from(message, 'utf-8').toString()
 
-const privateKey = process.env.GITHUB_PRIVATE_KEY
+const privateKey = Buffer.from(Config.GITHUB_PRIVATE_KEY, 'utf-8').toString()
 
 // Create an authenticated Octokit client authenticated as a GitHub App
 const app = new App({
@@ -61,11 +61,12 @@ export const handler = async (event: APIGatewayEvent, context: Context): Promise
         body: messageForNewPRs
       })
     } catch (error) {
-      if (error.response) {
-        console.error(`Error! Status: ${error.response.status}. Message: ${error.response.data.message}`)
-      } else {
-        console.error(error)
-      }
+      // if (error.response) {
+      //   console.error(`Error! Status: ${error.response.status}. Message: ${error.response.data.message}`)
+      // } else {
+      //   console.error(error)
+      // }
+      console.error(error)
     }
   })
 

@@ -14,6 +14,8 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/node": "^20.9.0",
+    "@types/aws-lambda": "^8.10.126",
     "@tsconfig/node18": "^18.2.2",
     "aws-cdk-lib": "2.101.1",
     "constructs": "10.2.69",
