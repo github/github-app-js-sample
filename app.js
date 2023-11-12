@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
-import fs from 'fs'
 // import http from 'http'
+import crypto from "node:crypto";
 import { Octokit, App } from 'octokit'
 import { createNodeMiddleware } from '@octokit/webhooks'
 import { Config } from "sst/node/config";
@@ -11,7 +11,11 @@ dotenv.config()
 
 // Set configured values
 const appId = Config.APP_ID
-const privateKey = Buffer.from(Config.GITHUB_PRIVATE_KEY, 'utf-8')
+// const privateKey = Buffer.from(Config.GITHUB_PRIVATE_KEY, 'utf-8')
+const privateKey = crypto.createPrivateKey(Config.GITHUB_PRIVATE_KEY).export({
+  type: "pkcs8",
+  format: "pem",
+})
 const secret = Config.WEBHOOK_SECRET
 const enterpriseHostname = process.env.ENTERPRISE_HOSTNAME
 const messageForNewPRs = Buffer.from(message, 'utf-8')
