@@ -4,6 +4,7 @@ import fs from 'fs'
 import { Octokit, App } from 'octokit'
 import { createNodeMiddleware } from '@octokit/webhooks'
 import { Config } from "sst/node/config";
+import { message } from "./message";
 
 // Load environment variables from .env file
 dotenv.config()
@@ -15,7 +16,7 @@ const appId = process.env.APP_ID
 const privateKey = Buffer.from(Config.GITHUB_PRIVATE_KEY, 'utf-8')
 const secret = process.env.WEBHOOK_SECRET
 const enterpriseHostname = process.env.ENTERPRISE_HOSTNAME
-const messageForNewPRs = fs.readFileSync('./message.md', 'utf8')
+const messageForNewPRs = Buffer.from(message, 'utf-8')
 
 // Create an authenticated Octokit client authenticated as a GitHub App
 const app = new App({
