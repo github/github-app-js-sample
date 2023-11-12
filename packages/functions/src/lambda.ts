@@ -5,11 +5,10 @@ import * as dotenv from "dotenv";
 
 import * as crypto from "crypto";
 import { App } from "@octokit/app";
-import { OAuthApp, createAWSLambdaAPIGatewayV2Handler } from "@octokit/oauth-app";
-import { Webhooks, createNodeMiddleware } from "@octokit/webhooks";
+import { Webhooks } from "@octokit/webhooks";
 import { Octokit } from "@octokit/rest";
 import { Config } from "sst/node/config";
-import { message } from "./message";
+// import { message } from "./message";
 
 dotenv.config()
 
@@ -25,7 +24,7 @@ const appId = Config.APP_ID
 // })
 
 //@ts-ignore
-const messageForNewPRs = Buffer.from(message, 'utf-8').toString()
+// const messageForNewPRs = Buffer.from(message, 'utf-8').toString()
 
 // const privateKey = Buffer.from(Config.GITHUB_PRIVATE_KEY, 'utf-8').toString()
 const privateKey = process.env.GITHUB_PRIVATE_KEY
@@ -59,30 +58,26 @@ const webhooks = new Webhooks({
   secret: "this-is-the-best-app",
 })
 
-webhooks.on('pull_request.opened', async ({ payload }) => {
+webhooks.on('pull_request.opened', async ({ id, name, payload }) => {
+  console.log(`Received a pull_request.opened event (id: ${id})`);
   console.log(`Received a pull request event for #${payload.pull_request.number}`)
-  // Create an authenticated Octokit client instance
-
-  // Obtain the installation access token
-  const installation = await app.getInstallationOctokit(payload.installation.id);
-  const octokit = new Octokit({
-    auth: installation,
-  });
-
+  // Retrieve the installation ID from the webhook payload
   try {
-    await octokit.rest.issues.createComment({
-      owner: payload.repository.owner.login,
-      repo: payload.repository.name,
-      issue_number: payload.pull_request.number,
-      body: messageForNewPRs
-    })
+    const installationId = payload.installation.id;
+    // Obtain the installation access token
+    const octokit = await app.getInstallationOctokit(installationId);
+
+    await octokit.request(
+      "POST /repos/{owner}/{repo}/issues/{issue_number}/comments",
+      {
+        owner: payload.repository.owner.login,
+        repo: payload.repository.name,
+        issue_number: payload.pull_request.number,
+        body: 'Thank you for your pull request!'
+      }
+    )
   } catch (error) {
-    if (error.response) {
-      console.error(`Error! Status: ${error.response.status}. Message: ${error.response.data.message}`)
-    } else {
-      console.error(error)
-    }
-    console.error(error)
+    console.error(`Issue creating comment: ${error}`)
   }
 })
 
@@ -98,9 +93,16 @@ webhooks.onError((error) => {
 
 export const handler = async (event: APIGatewayEvent) => {
   try {
-    const webhookEvent = JSON.parse(event.body);
-    console.log(webhookEvent)
+    let requestBody = event.body;
+    // Decode from base64 if the body is base64 encoded
+    if (event.isBase64Encoded && requestBody) {
+      requestBody = Buffer.from(requestBody, 'base64').toString('utf-8');
+    }
 
+    if (!requestBody) {
+      throw new Error('Request body is empty or missing');
+    }
+    console.log(requestBody)
     console.log(event.headers)
 
     // Verify and process the webhook event
@@ -108,7 +110,7 @@ export const handler = async (event: APIGatewayEvent) => {
       id: event.headers['x-github-delivery'],
       name: event.headers['x-github-event'],
       signature: event.headers['x-hub-signature-256'],
-      payload: webhookEvent,
+      payload: requestBody,
     });
 
     return { statusCode: 200, body: 'Success' };
