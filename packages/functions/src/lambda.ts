@@ -1,11 +1,15 @@
 const serverlessExpress = require("@vendia/serverless-express")
 import { Context, APIGatewayEvent } from 'aws-lambda';
 
-const crypto = require("crypto")
+import * as dotenv from "dotenv";
+
+// const crypto = require("crypto")
 import { Octokit, App } from 'octokit'
 import { createNodeMiddleware } from '@octokit/webhooks'
 import { Config } from "sst/node/config";
 import { message } from "./message";
+
+dotenv.config()
 
 //@ts-ignore
 const appId = Config.APP_ID
@@ -13,15 +17,17 @@ const appId = Config.APP_ID
 // const privateKey = Buffer.from(Config.GITHUB_PRIVATE_KEY, 'utf-8').toString()
 
 //@ts-ignore
-const privateKey = crypto.createPrivateKey(Config.GITHUB_PRIVATE_KEY).export({
-  type: "pkcs8",
-  format: "pem",
-})
+// const privateKey = crypto.createPrivateKey(Config.GITHUB_PRIVATE_KEY).export({
+//   type: "pkcs8",
+//   format: "pem",
+// })
 
 //@ts-ignore
 const secret = Config.WEBHOOK_SECRET
 const enterpriseHostname = process.env.ENTERPRISE_HOSTNAME
 const messageForNewPRs = Buffer.from(message, 'utf-8').toString()
+
+const privateKey = process.env.GITHUB_PRIVATE_KEY
 
 // Create an authenticated Octokit client authenticated as a GitHub App
 const app = new App({

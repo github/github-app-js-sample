@@ -7,7 +7,11 @@ export function API({ stack }: StackContext) {
 
   const handlerFunc = new Function(stack, "handlerFunc", {
     handler: "packages/functions/src/lambda.handler",
-    bind: [APP_ID, GITHUB_PRIVATE_KEY, WEBHOOK_SECRET]
+    bind: [APP_ID, GITHUB_PRIVATE_KEY, WEBHOOK_SECRET],
+    environment: {
+      // @ts-ignore
+      GITHUB_PRIVATE_KEY: process.env.GITHUB_PRIVATE_KEY
+    }
   })
 
   const api = new Api(stack, "api", {
