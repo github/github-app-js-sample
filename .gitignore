@@ -43,3 +43,4 @@ cdk.context.json
 
 # private key
 githubapp.private-key.pem
+githubapp.private-key-pkcs8.key
