@@ -3,10 +3,12 @@ import { Context, APIGatewayEvent } from 'aws-lambda';
 
 import * as dotenv from "dotenv";
 
-import * as crypto from "crypto";
+import { createHmac } from 'crypto';
 import { App } from "@octokit/app";
 import { Webhooks } from "@octokit/webhooks";
-import { Octokit } from "@octokit/rest";
+// import { Octokit } from "@octokit/rest";
+import type { Endpoints } from '@octokit/types'
+import type { PullRequestEvent } from '@octokit/webhooks-types'
 import { Config } from "sst/node/config";
 // import { message } from "./message";
 
@@ -39,6 +41,9 @@ const app = new App({
     clientId: "Iv1.211cf3a1613c44e1",
     clientSecret: "136c619b6306e8358b2f90102b1ba96f4e7ba9b5",
   },
+  webhooks: {
+    secret: "this-is-the-best-app",
+  }
   // ...(enterpriseHostname && {
   //   Octokit: Octokit.defaults({
   //     baseUrl: `https://${enterpriseHostname}/api/v3`
@@ -52,70 +57,89 @@ const app = new App({
 //   clientSecret: "136c619b6306e8358b2f90102b1ba96f4e7ba9b5",
 // });
 
+const signRequestBody = (secret: string, body: string): string =>
+  'sha256=' + createHmac('sha256', secret).update(body, 'utf-8').digest('hex')
+
+const writePullRequestComment = async ({
+  event,
+  message,
+}: {
+  event: PullRequestEvent
+  message: string
+}): Promise<
+  Endpoints['POST /repos/{owner}/{repo}/issues/{issue_number}/comments']['response']
+> => {
+  const octokit = await app.getInstallationOctokit(event.installation.id)
+  return octokit.request(
+    'POST /repos/{owner}/{repo}/issues/{issue_number}/comments',
+    {
+      owner: event.repository.owner.login,
+      repo: event.repository.name,
+      issue_number: event.number,
+      body: message,
+    }
+  )
+}
+
+// const webhooks = new Webhooks({
+//   secret: "this-is-the-best-app",
+// })
+
 // Subscribe to the "pull_request.opened" webhook event
+// webhooks.on('pull_request.opened', async ({ id, name, payload }) => {
+//   console.log(`Received a pull_request.opened event (id: ${id})`);
+//   console.log(`Received a pull request event for #${payload.pull_request.number}`)
+//   // Retrieve the installation ID from the webhook payload
+//   try {
+//     const installationId = payload.installation.id;
+//     // Obtain the installation access token
+//     const octokit = await app.getInstallationOctokit(installationId);
 
-const webhooks = new Webhooks({
-  secret: "this-is-the-best-app",
-})
-
-webhooks.on('pull_request.opened', async ({ id, name, payload }) => {
-  console.log(`Received a pull_request.opened event (id: ${id})`);
-  console.log(`Received a pull request event for #${payload.pull_request.number}`)
-  // Retrieve the installation ID from the webhook payload
-  try {
-    const installationId = payload.installation.id;
-    // Obtain the installation access token
-    const octokit = await app.getInstallationOctokit(installationId);
-
-    await octokit.request(
-      "POST /repos/{owner}/{repo}/issues/{issue_number}/comments",
-      {
-        owner: payload.repository.owner.login,
-        repo: payload.repository.name,
-        issue_number: payload.pull_request.number,
-        body: 'Thank you for your pull request!'
-      }
-    )
-  } catch (error) {
-    console.error(`Issue creating comment: ${error}`)
-  }
-})
+//     await octokit.request(
+//       "POST /repos/{owner}/{repo}/issues/{issue_number}/comments",
+//       {
+//         owner: payload.repository.owner.login,
+//         repo: payload.repository.name,
+//         issue_number: payload.pull_request.number,
+//         body: 'Thank you for your pull request!'
+//       }
+//     )
+//   } catch (error) {
+//     console.error(`Issue creating comment: ${error}`)
+//   }
+// })
 
 // Optional: Handle errors
-webhooks.onError((error) => {
-  if (error.name === 'AggregateError') {
-    // Log Secret verification errors
-    console.log(`Error processing request: ${error.event}`)
-  } else {
-    console.log(error)
-  }
-})
+// webhooks.onError((error) => {
+//   if (error.name === 'AggregateError') {
+//     // Log Secret verification errors
+//     console.log(`Error processing request: ${error.event}`)
+//   } else {
+//     console.log(error)
+//   }
+// })
 
 export const handler = async (event: APIGatewayEvent) => {
-  try {
-    let requestBody = event.body;
-    // Decode from base64 if the body is base64 encoded
-    if (event.isBase64Encoded && requestBody) {
-      requestBody = Buffer.from(requestBody, 'base64').toString('utf-8');
+  const theirSignature = event.headers['x-hub-signature-256']
+  const ourSignature = signRequestBody("this-is-the-best-app", event.body)
+  if (theirSignature !== ourSignature) {
+    return {
+      statusCode: 401,
+      body: 'Bad signature',
     }
-
-    if (!requestBody) {
-      throw new Error('Request body is empty or missing');
-    }
-    console.log(requestBody)
-    console.log(event.headers)
-
-    // Verify and process the webhook event
-    await webhooks.verifyAndReceive({
-      id: event.headers['x-github-delivery'],
-      name: event.headers['x-github-event'],
-      signature: event.headers['x-hub-signature-256'],
-      payload: requestBody,
-    });
-
-    return { statusCode: 200, body: 'Success' };
-  } catch (error) {
-    console.error(error);
-    return { statusCode: 500, body: 'Error' };
+  }
+  const eventType = event.headers['x-github-event']
+  if (eventType !== 'pull_request') {
+    return { statusCode: 200 }
+  }
+  const prEvent: PullRequestEvent = JSON.parse(event.body)
+  if (['reopened', 'opened'].includes(prEvent.action)) {
+    await writePullRequestComment({
+      prEvent,
+      message: 'Salutations, what a fine PR you have here.',
+    })
+  }
+  return {
+    statusCode: 200,
   }
 }
