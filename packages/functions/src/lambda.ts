@@ -3,9 +3,12 @@ import { Context, APIGatewayEvent } from 'aws-lambda';
 
 import * as dotenv from "dotenv";
 
-const crypto = require("crypto")
-import { Octokit, App } from 'octokit'
-import { createNodeMiddleware } from '@octokit/webhooks'
+const crypto = require('crypto')
+// import { Octokit, App } from 'octokit'
+// import { createNodeMiddleware } from '@octokit/webhooks'
+
+const { App, createNodeMiddleware } = require("@octokit/app");
+const { Octokit } = require("@octokit/core");
 import { Config } from "sst/node/config";
 import { message } from "./message";
 

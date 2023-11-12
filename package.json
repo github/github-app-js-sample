@@ -14,9 +14,9 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/node": "^20.9.0",
-    "@types/aws-lambda": "^8.10.126",
     "@tsconfig/node18": "^18.2.2",
+    "@types/aws-lambda": "^8.10.126",
+    "@types/node": "^20.9.0",
     "aws-cdk-lib": "2.101.1",
     "constructs": "10.2.69",
     "smee-client": "^1.2.3",
@@ -26,6 +26,8 @@
     "vite": "^4.1.5"
   },
   "dependencies": {
+    "@octokit/app": "^14.0.1",
+    "@octokit/core": "^5.0.1",
     "@vendia/serverless-express": "^4.10.4",
     "dotenv": "^16.0.3",
     "octokit": "^2.0.14"
