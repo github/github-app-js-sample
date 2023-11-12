@@ -1,24 +1,33 @@
-import dotenv from 'dotenv'
+// import dotenv from 'dotenv'
 // import http from 'http'
-import crypto from "node:crypto";
+
+//@ts-ignore
+// global.crypto = require('crypto');
 import { Octokit, App } from 'octokit'
 import { createNodeMiddleware } from '@octokit/webhooks'
 import { Config } from "sst/node/config";
 import { message } from "./message";
 
 // Load environment variables from .env file
-dotenv.config()
+// dotenv.config()
 
 // Set configured values
+
+//@ts-ignore
 const appId = Config.APP_ID
-// const privateKey = Buffer.from(Config.GITHUB_PRIVATE_KEY, 'utf-8')
-const privateKey = crypto.createPrivateKey(Config.GITHUB_PRIVATE_KEY).export({
-  type: "pkcs8",
-  format: "pem",
-})
+//@ts-ignore
+const privateKey = Buffer.from(Config.GITHUB_PRIVATE_KEY, 'utf-8').toString()
+
+//@ts-ignore
+// const privateKey = crypto.createPrivateKey(Config.GITHUB_PRIVATE_KEY).export({
+//   type: "pkcs8",
+//   format: "pem",
+// })
+
+//@ts-ignore
 const secret = Config.WEBHOOK_SECRET
 const enterpriseHostname = process.env.ENTERPRISE_HOSTNAME
-const messageForNewPRs = Buffer.from(message, 'utf-8')
+const messageForNewPRs = Buffer.from(message, 'utf-8').toString()
 
 // Create an authenticated Octokit client authenticated as a GitHub App
 const app = new App({
