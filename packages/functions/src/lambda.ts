@@ -1,4 +1,4 @@
 const serverlessExpress = require("@vendia/serverless-express")
-const middleware = require("../../../app")
+import { middleware } from "../../../app"
 
 export const handler = serverlessExpress({ middleware });

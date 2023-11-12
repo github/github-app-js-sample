@@ -30,6 +30,7 @@ node_modules
 # sst
 .sst
 .build
+cdk.context.json
 
 # opennext
 .open-next
