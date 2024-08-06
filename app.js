@@ -3,6 +3,7 @@ import fs from 'fs'
 import http from 'http'
 import { Octokit, App } from 'octokit'
 import { createNodeMiddleware } from '@octokit/webhooks'
+import SmeeClient from 'smee-client'
 
 // Load environment variables from .env file
 dotenv.config()
