@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "server": "node app.js",
+    "start": "node app.js",
     "lint": "standard"
   },
   "devDependencies": {
