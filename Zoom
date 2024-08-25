@@ -1,0 +1,139 @@
+const express = require('express');
+const http = require('http');
+const socketIO = require('socket.io');
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIO(server);
+
+app.use(express.static('public')); // Serve static files from the 'public' directory
+
+io.on('connection', (socket) => {
+    console.log('New user connected:', socket.id);
+
+    socket.on('join-room', (roomId) => {
+        socket.join(roomId);
+        socket.to(roomId).emit('user-connected', socket.id);
+
+        socket.on('disconnect', () => {
+            socket.to(roomId).emit('user-disconnected', socket.id);
+        });
+    });
+
+    socket.on('send-signal', (data) => {
+        io.to(data.userToSignal).emit('user-signal', {
+            signal: data.signal,
+            callerId: data.callerId
+        });
+    });
+
+    socket.on('return-signal', (data) => {
+        io.to(data.callerId).emit('receive-returned-signal', {
+            signal: data.signal,
+            id: socket.id
+        });
+    });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Conferencing App</title>
+</head>
+<body>
+    <h1>Video Conferencing App</h1>
+    <video id="localVideo" autoplay muted></video>
+    <div id="remoteVideos"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io('/');
+        const videoGrid = document.getElementById('remoteVideos');
+        const localVideo = document.getElementById('localVideo');
+        const peerConnections = {};
+        const localStreamPromise = navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+        });
+
+        socket.on('connect', () => {
+            socket.emit('join-room', 'my-room-id');
+        });
+
+        socket.on('user-connected', (userId) => {
+            callUser(userId);
+        });
+
+        socket.on('user-signal', (data) => {
+            const peerConnection = createPeerConnection(data.callerId);
+            peerConnection.signal(data.signal);
+        });
+
+        socket.on('receive-returned-signal', (data) => {
+            const peerConnection = peerConnections[data.id];
+            peerConnection.signal(data.signal);
+        });
+
+        socket.on('user-disconnected', (userId) => {
+            if (peerConnections[userId]) {
+                peerConnections[userId].close();
+                delete peerConnections[userId];
+            }
+            document.getElementById(userId)?.remove();
+        });
+
+        localStreamPromise.then(stream => {
+            localVideo.srcObject = stream;
+
+            socket.on('connect', () => {
+                socket.emit('join-room', 'room-id');
+            });
+
+            socket.on('user-connected', userId => {
+                callUser(userId);
+            });
+
+            function callUser(userId) {
+                const peerConnection = createPeerConnection(userId);
+                stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+            }
+
+            function createPeerConnection(userId) {
+                const peerConnection = new SimplePeer({
+                    initiator: true,
+                    trickle: false,
+                    stream: stream
+                });
+
+                peerConnection.on('signal', signal => {
+                    socket.emit('send-signal', {
+                        userToSignal: userId,
+                        callerId: socket.id,
+                        signal: signal
+                    });
+                });
+
+                peerConnection.on('stream', userStream => {
+                    const video = document.createElement('video');
+                    video.id = userId;
+                    video.srcObject = userStream;
+                    video.autoplay = true;
+                    video.playsInline = true;
+                    videoGrid.appendChild(video);
+                });
+
+                peerConnections[userId] = peerConnection;
+
+                return peerConnection;
+            }
+        }).catch(error => console.error('Error accessing media devices.', error));
+    </script>
+</body>
+</html>
+npm init -y
+npm install express socket.io simple-peernode server.js
