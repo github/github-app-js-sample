@@ -41,3 +41,6 @@ by major cloud providers:
 [AWS Secrets Manager](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-secrets-manager/),
 [Google Secret Manager](https://cloud.google.com/nodejs/docs/reference/secret-manager/latest),
 etc.
+
+## How to run
+> npx smee -u https://smee.io/eGcLremBAAGr6P0q -t http://localhost:3000/api/webhook

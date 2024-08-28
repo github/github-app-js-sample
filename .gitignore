@@ -2,6 +2,8 @@
 logs
 .env
 *.log
+*.pem
+jacktn-quickstart-app.2024-08-27.private-key.pem:Zone.Identifier
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
