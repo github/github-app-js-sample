@@ -14,6 +14,6 @@
   },
   "dependencies": {
     "dotenv": "^16.0.3",
-    "octokit": "^3.1.2"
+    "octokit": "^4.1.1"
   }
 }
