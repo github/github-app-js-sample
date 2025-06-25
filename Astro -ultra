@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css" />
+  <title>Astro Ultra</title>
+</head>
+<body>
+  <div id="app">
+    <div id="astro-face">
+      <img src="assets/astro.png" id="astro-img" alt="Astro" />
+      <div id="mouth-animation"></div>
+    </div>
+    <div id="response"></div>
+    <button onclick="startListening()">🎤 Parler</button>
+    <canvas id="simulation-canvas"></canvas>
+  </div>
+  <script src="main.js"></script>
+  <script src="simulation.js"></script>
+</body>
+</html>body {
+  background: radial-gradient(circle at center, #000 40%, #0a0a2a 100%);
+  font-family: sans-serif;
+  color: white;
+  text-align: center;
+}
+#astro-face {
+  position: relative;
+}
+#astro-img {
+  width: 200px;
+}
+#mouth-animation {
+  position: absolute;
+  bottom: 40px;
+  left: 90px;
+  width: 20px;
+  height: 20px;
+  background: red;
+  border-radius: 50%;
+  animation: speak 1s infinite alternate;
+}
+@keyframes speak {
+  from { transform: scaleY(1); }
+  to { transform: scaleY(2); }
+}
+#simulation-canvas {
+  margin-top: 20px;
+  width: 300px;
+  height: 200px;
+  background: #111;
+  border: 1px solid white;
+}const synth = window.speechSynthesis;
+const recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recog = new recognition();
+
+function speak(text) {
+  const utter = new SpeechSynthesisUtterance(text);
+  synth.speak(utter);
+  document.getElementById("mouth-animation").style.animationPlayState = 'running';
+  utter.onend = () => {
+    document.getElementById("mouth-animation").style.animationPlayState = 'paused';
+  };
+}
+
+function startListening() {
+  recog.start();
+  recog.onresult = function(e) {
+    const input = e.results[0][0].transcript;
+    document.getElementById("response").textContent = "Vous : " + input;
+    let reply = "Je pense à cela...";
+    if (input.includes("masse négative")) reply = "Simulation de masse négative en cours...";
+    document.getElementById("response").textContent += "\nAstro : " + reply;
+    speak(reply);
+  };
+}const canvas = document.getElementById('simulation-canvas');
+const ctx = canvas.getContext('2d');
+let x = 150, y = 100, vx = -1;
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.beginPath();
+  ctx.arc(x, y, 10, 0, Math.PI * 2);
+  ctx.fillStyle = "cyan";
+  ctx.fill();
+  ctx.closePath();
+
+  x += vx;
+  if (x < 0 || x > canvas.width) vx *= -1;
+  requestAnimationFrame(draw);
+}
+draw();{
+  "name": "Astro Ultra",
+  "short_name": "Astro",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#0a0a2a",
+  "icons": [{
+    "src": "assets/icon.png",
+    "sizes": "192x192",
+    "type": "image/png"
+  }]
+}self.addEventListener('install', function(e) {
+  e.waitUntil(
+    caches.open('astro-ultra').then(function(cache) {
+      return cache.addAll([
+        './',
+        './index.html',
+        './style.css',
+        './main.js',
+        './simulation.js'
+      ]);
+    })
+  );
+});
+self.addEventListener('fetch', function(e) {
+  e.respondWith(
+    caches.match(e.request).then(function(response) {
+      return response || fetch(e.request);
+    })
+  );
+});{
+  "memory": []
+}
