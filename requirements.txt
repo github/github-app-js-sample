@@ -1,0 +1,9 @@
+PyQt6
+SQLAlchemy
+bcrypt
+pandas
+reportlab
+openpyxl
+# For Jalali calendar, to be added when that feature is implemented
+# jdatetime
+# khayyam
