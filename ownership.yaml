@@ -1,6 +1,7 @@
 version: 1
 ownership:
   - name: github-app-js-sample
+    maintainer: d-sharanya
     long_name: GitHub App JS Sample
     description: Sample of a GitHub App that comments new pull requests
     kind: code
